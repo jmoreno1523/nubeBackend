@@ -1,58 +1,23 @@
-const fs = require('fs').promises;
-const path = require('path');
+// registroController.js
 
-const rutaHistorial = path.join(__dirname, 'historial.json');
-
-async function cargarHistorial() {
-  try {
-    const datos = await fs.readFile(rutaHistorial, 'utf-8');
-    return JSON.parse(datos);
-  } catch (error) {
-    // Si el archivo no existe o hay error, retorna array vacío
-    return [];
-  }
-}
-
-async function guardarHistorial(historial) {
-  try {
-    await fs.writeFile(rutaHistorial, JSON.stringify(historial, null, 2));
-  } catch (error) {
-    throw new Error('Error guardando historial');
-  }
-}
+let historial = [
+  // Puedes poner algunos datos iniciales si quieres, o dejarlo vacío:
+  // { direccion: "Arriba", hora: "3/6/2025, 8:29:29 p. m." }
+];
 
 exports.agregarRegistro = async (req, res) => {
   try {
     const { direccion, hora } = req.body;
+    if (!direccion || !hora) return res.status(400).json({ mensaje: 'Datos faltantes' });
 
-    if (!direccion || typeof direccion !== 'string' || direccion.trim() === '') {
-      return res.status(400).json({ mensaje: 'Dirección inválida o faltante' });
-    }
+    historial.unshift({ direccion, hora }); // guardamos solo en memoria (temporal)
 
-    if (!hora || typeof hora !== 'string' || hora.trim() === '') {
-      return res.status(400).json({ mensaje: 'Hora inválida o faltante' });
-    }
-
-    const historial = await cargarHistorial();
-
-    historial.unshift({ direccion: direccion.trim(), hora: hora.trim() });
-
-    await guardarHistorial(historial);
-
-    res.status(201).json({ mensaje: 'Registro guardado correctamente' });
+    res.status(201).json({ mensaje: 'Registro guardado correctamente (memoria)' });
   } catch (error) {
-    console.error('Error en agregarRegistro:', error);
     res.status(500).json({ mensaje: 'Error interno del servidor' });
   }
 };
 
 exports.obtenerRegistros = async (req, res) => {
-  try {
-    const historial = await cargarHistorial();
-    res.json(historial);
-  } catch (error) {
-    console.error('Error en obtenerRegistros:', error);
-    res.status(500).json({ mensaje: 'Error interno del servidor' });
-  }
+  res.json(historial);
 };
-
