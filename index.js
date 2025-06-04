@@ -8,9 +8,14 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.send('Servidor backend funcionando');
+});
+
 app.use('/api', registroRoutes);  // Montamos las rutas bajo /api
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
+
 
